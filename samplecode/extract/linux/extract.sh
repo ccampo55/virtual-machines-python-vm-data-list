@@ -7,6 +7,9 @@
 # The output from this tool will be generated in the data/<subscriptionId> folder
 # Multiple json files containing details of the VM and storage account in the subscription will be created
 # Note: this script relies on the jq JSON processor.
+# If you are getting this error "The server failed to authenticate the request. Verify that the certificate is valid and is associated with this subscription."
+# make sure you have Service administrator or the Co-administrator privileges for your subscription.
+
 
 echo -e "Before running this script, please login to your subscription using #azure login command. Open the URL : https://aka.ms/devicelogin in browser and enter the arbitary code \n"
 SubscriptionId=$1
@@ -50,8 +53,11 @@ jq '.['$i'] +{"AvailabilitySetName": "'$AvailabilitySetName'", "ServiceName": "'
 i=$i+1
 done
 fi
+if [ -s ../../data/$SubscriptionId/asmvmlist.json ]
+then
 jq -s . ../../data/$SubscriptionId/asmvmlist.json > ../../data/$SubscriptionId/asmclivm.json
 rm -f ../../data/$SubscriptionId/asmvm.json ../../data/$SubscriptionId/asmdnsname ../../data/$SubscriptionId/asmvmlist.json
+fi
 echo -e "Gathering Storage Account details in ASM... \n"
 azure storage account list --subscription $SubscriptionId --json > ../../data/$SubscriptionId/asmclisa.json
 echo -e "Extracted data available in the following folder : ../../data/$SubscriptionId folder. \n"
